@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExcelAtenciones - Local Bridge</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">📊</span>
+                    <h1>ExcelAtenciones <small style="font-size:0.5em; opacity:0.7">V2.0</small></h1>
+                </div>
+                <div id="auth-section">
+                    <div id="connection-status" class="status-indicator" title="Estado de conexión con Excel">
+                        <span class="status-dot red"></span>
+                        <span class="status-text">Cargando...</span>
+                    </div>
+                    <div id="user-info" class="hidden">
+                        <span id="username">Usuario Local</span>
+                        <button id="logout-btn" class="btn secondary outline"
+                            onclick="localStorage.clear();location.reload();">Reiniciar</button>
+                    </div>
+                    <button id="login-btn" class="btn primary">Configurar</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="container">
+            <section id="config-section" class="card hidden">
+                <h2>Configuración Local</h2>
+                <div class="form-group">
+                    <label>Archivo Maestro (Madre)</label>
+                    <input type="text" id="file-path" placeholder="C:\...\Gestión de Mediación DEMCAN 2026.xlsx">
+                </div>
+                <div class="form-group">
+                    <label>Archivo de Consultas</label>
+                    <input type="text" id="record-path" placeholder="C:\...\CONSULTAS 2026.xlsx">
+                </div>
+                <button id="save-config" class="btn primary">Guardar y Conectar</button>
+            </section>
+
+            <section id="main-section" class="hidden">
+                <!-- Global Search -->
+                <div class="search-section card">
+                    <div class="search-container">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="search-people"
+                            placeholder="Buscar por Nombre, Apellidos, NIE o Habitación...">
+                        <div id="search-results" class="search-results-dropdown hidden"></div>
+                    </div>
+                </div>
+
+                <!-- Selected User Bar (Horizontal) -->
+                <div id="selected-user-bar" class="selected-user-bar hidden card">
+                    <div class="user-bar-item">
+                        <span class="label">Nombre</span>
+                        <span id="bar-nombre" class="value">-</span>
+                    </div>
+                    <div class="user-bar-item">
+                        <span class="label">Apellidos</span>
+                        <span id="bar-apellidos" class="value">-</span>
+                    </div>
+                    <div class="user-bar-item">
+                        <span class="label">NIE/DNI</span>
+                        <span id="bar-dni" class="value">-</span>
+                    </div>
+                    <div class="user-bar-item">
+                        <span class="label">Habitación</span>
+                        <span id="bar-hab" class="value">-</span>
+                    </div>
+                </div>
+
+                <!-- Tabs Navigation -->
+                <nav class="tabs-nav">
+                    <button class="tab-link active" data-tab="tab-generales">Datos Generales</button>
+                    <button class="tab-link" data-tab="tab-enfermeria">Enfermería</button>
+                    <button class="tab-link" data-tab="tab-sanitario">Centro Sanitario</button>
+                    <button class="tab-link" data-tab="tab-an">AN</button>
+                    <button class="tab-link" data-tab="tab-imap">Volcado IMAP</button>
+                </nav>
+
+                <!-- Tabs Content -->
+                <div class="tabs-content">
+                    <!-- Tab: Datos Generales (Read Only) -->
+                    <div id="tab-generales" class="tab-pane active card">
+                        <h3>Información del Usuario (Maestro)</h3>
+                        <div id="person-details-grid" class="details-grid">
+                            <div class="empty-selection">Busca y selecciona un usuario para ver sus datos</div>
+                        </div>
+                    </div>
+
+                    <!-- Tab: Enfermería -->
+                    <div id="tab-enfermeria" class="tab-pane card">
+                        <h3>Registro de Enfermería</h3>
+                        <div id="selected-person-header" class="selected-person-summary empty">
+                            Selecciona una persona primero
+                        </div>
+                        <form id="attendance-form" class="hidden">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>P.I. (SAP)</label>
+                                    <select id="attendance-pi">
+                                        <option value="">(Sin seleccionar)</option>
+                                        <option>No consta</option>
+                                        <option>Verbaliza</option>
+                                        <option>MVSPI</option>
+                                        <option>RSPI</option>
+                                        <option>Estado</option>
+                                        <option>Inmigrante</option>
+                                        <option>Solicitante de Protecci&oacute;n Internacional</option>
+                                        <option>Beneficiario de Protecci&oacute;n subsidiaria</option>
+                                        <option>Beneficiario de Estatuto de Refugiado</option>
+                                        <option>Residencia Razones humanitarias</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Conf. salida (S&iacute;/No)</label>
+                                    <select id="attendance-conf-salida">
+                                        <option value="">(Sin seleccionar)</option>
+                                        <option>S&iacute;</option>
+                                        <option>No</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Tipo de Atención</label>
+                                    <select id="attendance-type">
+                                        <option>General</option>
+                                        <option>Social</option>
+                                        <option>Entrega Bienes</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Observaciones / Motivo</label>
+                                <textarea id="observations" rows="4"></textarea>
+                            </div>
+                            <button type="submit" id="save-attendance" class="btn primary">Guardar en Registro</button>
+                        </form>
+                    </div>
+
+                    <!-- Other Tabs placeholders -->
+                    <div id="tab-sanitario" class="tab-pane card">
+                        <h3>Centro Sanitario</h3>
+                        <p class="empty-msg">Módulo en desarrollo...</p>
+                    </div>
+                    <div id="tab-an" class="tab-pane card">
+                        <h3>AN</h3>
+                        <p class="empty-msg">Módulo en desarrollo...</p>
+                    </div>
+                    <div id="tab-imap" class="tab-pane card">
+                        <h3>Volcado IMAP</h3>
+                        <p class="empty-msg">Módulo en desarrollo...</p>
+                    </div>
+                </div>
+
+    </div>
+    </section>
+
+    <section id="welcome-section" class="card welcome-card">
+        <div class="welcome-content">
+            <div class="welcome-icon">📂</div>
+            <h2>Base de Datos Local</h2>
+            <p>Haz clic en Configurar para vincular tus archivos Excel.</p>
+        </div>
+    </section>
+    </main>
+    </div>
+    <div id="toast-container"></div>
+    <script src="app.js"></script>
+</body>
+
+</html>
